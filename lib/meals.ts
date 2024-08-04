@@ -18,6 +18,6 @@ export async function getMeals(): Promise<Meal[]> {
       row.creator
     );
   });
-
+  //throw new Error("Not implemented");
   return meals;
 }
