@@ -5,5 +5,10 @@ interface MealsSomeSlugProps {
 }
 
 export default function MealsSomeSlug({ params }: MealsSomeSlugProps) {
-  return <h1>{params.slug}</h1>;
+  return (
+    <>
+      <header></header>
+      <h1>{params.slug}</h1>
+    </>
+  );
 }
