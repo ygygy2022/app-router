@@ -1,6 +1,7 @@
 import { getMeal } from "@/lib/meals";
 import classes from "./page.module.css";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 interface MealsSomeSlugProps {
   params: {
     slug: string;
@@ -9,6 +10,9 @@ interface MealsSomeSlugProps {
 
 export default async function MealsSomeSlug({ params }: MealsSomeSlugProps) {
   const meal = await getMeal(params.slug);
+  if (!meal) {
+    notFound();
+  }
   return (
     <>
       <header className={classes.header}>
