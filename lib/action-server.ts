@@ -63,11 +63,7 @@ function validateMealObject(meal: MealO): string[] {
   }
 
   // inspect image
-  if (
-    !meal.image ||
-    typeof meal.image !== "string" ||
-    (meal.image as File).size
-  ) {
+  if (!meal.image || (meal.image as File).size === 0) {
     errors.push("Invalid image: must be a valid file path.");
   }
 
