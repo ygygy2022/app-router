@@ -7,6 +7,16 @@ interface MealsSomeSlugProps {
     slug: string;
   };
 }
+export async function generateMetadata({ params }: MealsSomeSlugProps) {
+  const meal = await getMeal(params.slug);
+  if (!meal) {
+    notFound();
+  }
+  return {
+    title: meal.title,
+    description: meal.summary,
+  };
+}
 
 export default async function MealsSomeSlug({ params }: MealsSomeSlugProps) {
   const meal = await getMeal(params.slug);
