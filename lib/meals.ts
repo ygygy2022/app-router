@@ -1,5 +1,9 @@
 import sql from "better-sqlite3";
+import fs from "node:fs";
+import slugify from "slugify";
+import xss from "xss";
 import { Meal } from "../app/meals/models/Meal";
+import { MealO } from "@/app/meals/models/MealData";
 
 const db = sql("meals.db");
 
@@ -49,4 +53,41 @@ export async function getMeal(slug: string) {
   } catch (error) {
     return Promise.reject(error);
   }
+}
+
+export async function saveMeal(meal: MealO) {
+  meal.sanitizeInstructions();
+  const filename = meal.generateFilename();
+  const imageBuffer = await meal.getImageBuffer();
+  const image = `/images/${filename}`;
+  const stream = fs.createWriteStream(`public/${image}`);
+  stream.write(imageBuffer, (error) => {
+    if (error) {
+      throw new Error("Failed to save image");
+    }
+  });
+  // Save meal to database
+  // Prepare the meal object - this is the object that will be inserted into the database
+  // a plain object with the properties of the meal object
+  const mealObject = {
+    title: meal.title,
+    summary: meal.summary,
+    instructions: meal.instructions,
+    creator: meal.creator,
+    creator_email: meal.creator_email,
+    image: image, // use path to image
+    slug: slugify(meal.title, { lower: true }),
+  };
+  db.prepare(
+    `INSERT INTO meals(title, summary, instructions, creator, creator_email, image,slug) 
+    VALUES(
+    @title,
+    @summary,
+    @instructions,
+    @creator,
+    @creator_email,
+    @image,
+    @slug)`
+  ).run(mealObject);
+  stream.end();
 }
