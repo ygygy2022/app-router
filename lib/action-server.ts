@@ -4,6 +4,7 @@ import { MealO } from "@/app/meals/models/MealData";
 import { saveMeal } from "./meals";
 import { redirect } from "next/navigation";
 import { promises } from "dns";
+import { revalidatePath } from "next/cache";
 export default async function shareMeal(prevState: any, formData: FormData) {
   const meal = new MealO(formData);
   const errors = validateMealObject(meal);
@@ -11,6 +12,7 @@ export default async function shareMeal(prevState: any, formData: FormData) {
     return { message: errors };
   }
   await saveMeal(meal);
+  revalidatePath("/meals");
   redirect("/meals");
 }
 
