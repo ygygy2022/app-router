@@ -4,7 +4,10 @@ import slugify from "slugify";
 import xss from "xss";
 import { Meal } from "../app/meals/models/Meal";
 import { MealO } from "@/app/meals/models/MealData";
-
+import { S3 } from "@aws-sdk/client-s3";
+const s3 = new S3({
+  region: "ap-southeast-2",
+});
 const db = sql("meals.db");
 
 export async function getMeals(): Promise<Meal[]> {
@@ -57,15 +60,9 @@ export async function getMeal(slug: string) {
 
 export async function saveMeal(meal: MealO) {
   meal.sanitizeInstructions();
+  const bucket = process.env.BUCKET_NAME;
   const filename = meal.generateFilename();
   const imageBuffer = await meal.getImageBuffer();
-  const image = `/images/${filename}`;
-  const stream = fs.createWriteStream(`public/${image}`);
-  stream.write(imageBuffer, (error) => {
-    if (error) {
-      throw new Error("Failed to save image");
-    }
-  });
   // Save meal to database
   // Prepare the meal object - this is the object that will be inserted into the database
   // a plain object with the properties of the meal object
@@ -75,9 +72,17 @@ export async function saveMeal(meal: MealO) {
     instructions: meal.instructions,
     creator: meal.creator,
     creator_email: meal.creator_email,
-    image: image, // use path to image
+    image: filename, // use path to image
     slug: slugify(meal.title, { lower: true }),
   };
+
+  s3.putObject({
+    Bucket: bucket,
+    Key: `images/${filename}`, // path to image
+    Body: Buffer.from(imageBuffer),
+    ContentType: meal.image.type,
+  });
+
   db.prepare(
     `INSERT INTO meals(title, summary, instructions, creator, creator_email, image,slug) 
     VALUES(
@@ -89,5 +94,5 @@ export async function saveMeal(meal: MealO) {
     @image,
     @slug)`
   ).run(mealObject);
-  stream.end();
+  //stream.end();
 }

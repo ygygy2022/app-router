@@ -18,11 +18,14 @@ export default function MealItem({
   summary,
   creator,
 }: MealItemProps) {
+  //get imageBaseUrl from .env.local
+  const imageBaseUrl = process.env.NEXT_PUBLIC_IMAGE_BASE_URL;
+  const imageUrl = `${imageBaseUrl}/images/${image}`;
   return (
     <article className={classes.meal}>
       <header>
         <div className={classes.image}>
-          <Image src={image} alt={title} fill />
+          <Image src={imageUrl} alt={title} fill />
         </div>
         <div className={classes.headerText}>
           <h2>{title}</h2>
