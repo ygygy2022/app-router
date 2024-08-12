@@ -23,11 +23,14 @@ export default async function MealsSomeSlug({ params }: MealsSomeSlugProps) {
   if (!meal) {
     notFound();
   }
+  //get imageBaseUrl from .env.local
+  const imageBaseUrl = process.env.NEXT_PUBLIC_IMAGE_BASE_URL;
+  const imageUrl = `${imageBaseUrl}/images/${meal.image}`;
   return (
     <>
       <header className={classes.header}>
         <div className={classes.image}>
-          <Image src={meal.image} alt="Description of the image" fill />
+          <Image src={imageUrl} alt="Description of the image" fill />
         </div>
         <div className={classes.headerText}>
           <h1>{meal.title}</h1>
